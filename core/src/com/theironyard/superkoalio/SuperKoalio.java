@@ -66,8 +66,7 @@ public class SuperKoalio extends ApplicationAdapter {
         batch.end();
     }
 
-    float decelerate(float velocity) {
-        float deceleration = 0.9f;
+    float decelerate(float velocity, float deceleration) {
         velocity *= deceleration;
         if (Math.abs(velocity) < 1) {
             velocity = 0;
@@ -105,8 +104,8 @@ public class SuperKoalio extends ApplicationAdapter {
         }
 
 
-        yv = decelerate(yv);
-        xv = decelerate(xv);
+        yv = decelerate(yv, 0.9f);
+        xv = decelerate(xv, 0.6f);
 
     }
 }
