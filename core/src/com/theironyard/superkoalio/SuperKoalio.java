@@ -5,12 +5,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class SuperKoalio extends ApplicationAdapter {
     SpriteBatch batch;
-    TextureRegion stand;
+    TextureRegion stand, jump;
+    Animation walk;
 
     static final int WIDTH = 18;
     static final int HEIGHT = 26;
@@ -20,8 +22,9 @@ public class SuperKoalio extends ApplicationAdapter {
     static final float MAX_JUMP_VELOCITY = 2000;
     static final int GRAVITY = -50;
 
-    float x, y, xv, yv;
-    boolean canJump;
+    float x, y, xv, yv, time;
+    boolean canJump, faceRight = true;
+
 
 
 
@@ -31,16 +34,35 @@ public class SuperKoalio extends ApplicationAdapter {
         Texture sheet = new Texture("koalio.png");
         TextureRegion[][] tiles = TextureRegion.split(sheet, WIDTH, HEIGHT);
         stand = tiles[0][0];
+        jump = tiles[0][1];
+        walk = new Animation(0.1f, tiles[0][2], tiles[0][3], tiles[0][4]);
 
     }
 
     @Override
     public void render () {
+        time += Gdx.graphics.getDeltaTime();
         move();
 
+        TextureRegion img;
+        if (y > 0){
+            img = jump;
+        }
+        else if(xv != 0){
+            img = walk.getKeyFrame(time, true);
+
+        }
+        else{
+            img = stand;
+        }
+        Gdx.gl.glClearColor(0.5f, 0.5f, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
-        batch.draw(stand, x, y, DRAW_WIDTH, DRAW_HEIGHT);
+        if (faceRight) {
+            batch.draw(img, x, y, DRAW_WIDTH, DRAW_HEIGHT);
+        } else {
+            batch.draw(img, x + DRAW_WIDTH, y, DRAW_WIDTH * -1, DRAW_HEIGHT);
+        }
         batch.end();
     }
 
@@ -65,9 +87,11 @@ public class SuperKoalio extends ApplicationAdapter {
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             xv = MAX_VELOCITY;
+            faceRight = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             xv = MAX_VELOCITY * -1;
+            faceRight = false;
         }
 
         yv += GRAVITY;
